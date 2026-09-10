@@ -4,13 +4,14 @@ from fastapi import Depends, FastAPI
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.api.changes import router as changes_router
 from app.database import get_db
 from app.settings import get_settings
 
 settings = get_settings()
 app = FastAPI(title="AI-SRE Guardian", version=settings.version)
-
 DatabaseSession = Annotated[Session, Depends(get_db)]
+app.include_router(changes_router)
 
 
 @app.get("/health", tags=["system"])

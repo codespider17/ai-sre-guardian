@@ -6,19 +6,23 @@ AI-Native SRE服务可靠性与变更风险治理平台。
 
 ## 当前已实现
 
-- 独立Python 3.14工程及依赖锁。
-- FastAPI健康检查与PostgreSQL就绪检查。
+- 独立Python 3.14工程、依赖锁和FastAPI基础接口。
 - 独立PostgreSQL 17运行环境和本机Secret边界。
 - Service、ChangeEvent、AnalysisRun、EvidenceItem和AuditEvent五类核心模型。
 - Alembic数据库迁移、约束、索引和外键。
-- Ruff静态检查及pytest数据库集成测试。
+- 数据库迁移、Kubernetes基础设施、CI/CD流水线、依赖或镜像、安全边界和大规模变更六类确定性风险规则。
+- 0至100分风险计分和low、medium、high、critical四级风险分级。
+- Bearer Token保护的变更评估API，以及Change、Analysis、Evidence和Audit完整持久化链。
+- 基于唯一Delivery ID的幂等处理，重复投递复用原分析结果。
+- Ruff静态检查及pytest规则与数据库集成测试。
 
 ## 当前接口
 
-- GET /health
-- GET /ready
-- GET /docs
-- GET /openapi.json
+- `GET /health`
+- `GET /ready`
+- `POST /api/v1/changes/evaluate`
+- `GET /docs`
+- `GET /openapi.json`
 
 ## 本地开发
 
