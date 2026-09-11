@@ -36,3 +36,12 @@
 - 相同Delivery ID重复投递返回duplicate并复用原Analysis Run。
 - 真实验收风险分数100、等级critical、Finding数量6。
 - API数据库集成测试4项、全量测试18项通过，Alembic无模型漂移。
+
+## M3：Agent状态机、只读工具与审计闭环
+
+- 验证8个Agent状态、12条合法状态转换边和6步正常执行路径，并覆盖非法转换、终态保护、失败与快照恢复。
+- 建立6个只读工具、2个Namespace白名单、4个Prometheus固定查询模板；未开放任意Shell或资源变更能力。
+- 统一执行器使用固定参数数组和`subprocess.run(..., shell=False)`，并限制事件、日志和文本输出大小。
+- 真实数据库Agent Run `d7e245d4-df45-4def-9c4c-0555aabe47a2`达到`completed`，关联分析`56f3e3d0-b983-4881-b7ba-a46b48099774`。
+- 单次真实编排完成6个只读工具调用、6条Evidence、7条Audit和6次状态转换，最终建议为`manual_review_required`。
+- M3最终专项测试7项、全量测试61项通过；依赖检查和Alembic模型漂移检查通过。
