@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from app.database import SessionLocal
 from app.models import AnalysisRun, AuditEvent, ChangeEvent, EvidenceItem, Service
 from app.schemas_agent import AgentState
+from app.schemas_ai import AIAnalysisOutcome, StructuredAIAnalysis
 from app.schemas_tools import (
     KubernetesResourceKind,
     PrometheusQueryId,
@@ -197,3 +198,62 @@ def test_denied_tool_fails_agent_and_persists_sanitized_audit() -> None:
     assert len(audits) == 1
     assert audits[0].action == "agent.run_failed"
     assert audits[0].details["error_type"] == "ToolAccessDeniedError"
+
+
+def test_deepseek_outcome_is_persisted_and_drives_recommendation() -> None:
+    analysis_id = create_analysis("critical")
+    outcome = AIAnalysisOutcome(
+        mode="deepseek",
+        model="deepseek-v4-flash",
+        analysis=StructuredAIAnalysis(
+            risk_level="critical",
+            summary="Evidence-backed critical change risk.",
+            recommendation="block",
+            confidence=0.95,
+            evidence_refs=["evidence:fixture"],
+            reasoning_points=["critical deterministic evidence"],
+        ),
+    )
+
+    with SessionLocal() as session:
+        run = orchestrate_agent_analysis(
+            session,
+            analysis_id,
+            [
+                ToolRequest(
+                    tool=ToolName.CHANGE_RISK,
+                    analysis_run_id=analysis_id,
+                )
+            ],
+            ai_outcome=outcome,
+        )
+
+    assert run.state == AgentState.COMPLETED
+    assert run.recommendation == "block"
+    assert len(run.evidence_ids) == 2
+
+    with SessionLocal() as session:
+        ai_evidence = session.scalar(
+            select(EvidenceItem).where(
+                EvidenceItem.analysis_run_id == analysis_id,
+                EvidenceItem.evidence_key == f"agent.{run.run_id}.ai_analysis",
+            )
+        )
+        assert ai_evidence is not None
+        assert ai_evidence.source_type == "ai_analysis"
+        assert ai_evidence.source_ref == "deepseek-v4-flash"
+        assert ai_evidence.payload["mode"] == "deepseek"
+        assert ai_evidence.payload["analysis"]["recommendation"] == "block"
+
+        ai_audits = list(
+            session.scalars(
+                select(AuditEvent).where(
+                    AuditEvent.entity_type == "agent_run",
+                    AuditEvent.entity_id == run.run_id,
+                    AuditEvent.action == "agent.ai_analysis_recorded",
+                )
+            )
+        )
+        assert len(ai_audits) == 1
+        assert ai_audits[0].details["mode"] == "deepseek"
+        assert ai_audits[0].details["recommendation"] == "block"

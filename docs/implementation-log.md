@@ -45,3 +45,15 @@
 - 真实数据库Agent Run `d7e245d4-df45-4def-9c4c-0555aabe47a2`达到`completed`，关联分析`56f3e3d0-b983-4881-b7ba-a46b48099774`。
 - 单次真实编排完成6个只读工具调用、6条Evidence、7条Audit和6次状态转换，最终建议为`manual_review_required`。
 - M3最终专项测试7项、全量测试61项通过；依赖检查和Alembic模型漂移检查通过。
+
+## M4：知识检索与证据约束AI分析
+
+- 数据库迁移：a99cdb193239。
+- 建立2张知识库表，写入6类知识、6份文档和6个知识片段。
+- 确定性检索样例Top-1得分56，命中Kubernetes发布恢复Runbook。
+- DeepSeek真实调用第1次成功，输入7条Evidence并返回7条可信引用。
+- 首次结果为critical/block，置信度0.95，共6条推理要点。
+- Agent集成运行状态completed，真实建议manual_review_required，置信度0.95。
+- Agent关联2条Evidence，其中1条为AI结果，并生成3条审计事件。
+- DeepSeek异常自动进入rules_fallback，Agent不具备危险变更工具。
+- 专项测试8项、全量测试80项通过，Alembic无模型漂移。

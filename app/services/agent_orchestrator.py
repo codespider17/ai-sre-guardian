@@ -4,12 +4,14 @@ from sqlalchemy.orm import Session
 
 from app.models import AnalysisRun, AuditEvent, EvidenceItem
 from app.schemas_agent import AgentRun, AgentState
+from app.schemas_ai import AIAnalysisOutcome
 from app.schemas_tools import ToolRequest
 from app.services.agent_state import (
     TERMINAL_STATES,
     create_agent_run,
     transition_agent,
 )
+from app.services.ai_result_persistence import persist_agent_ai_outcome
 from app.services.read_only_tools import (
     CommandRunner,
     PrometheusReader,
@@ -39,6 +41,7 @@ def orchestrate_agent_analysis(
     requests: list[ToolRequest],
     command_runner: CommandRunner = run_read_only_command,
     prometheus_reader: PrometheusReader = read_prometheus_query,
+    ai_outcome: AIAnalysisOutcome | None = None,
 ) -> AgentRun:
     run = create_agent_run(analysis_run_id)
     current = run
@@ -104,9 +107,20 @@ def orchestrate_agent_analysis(
             AgentState.ANALYZING,
             "authorized evidence collection completed",
         )
-        current = current.model_copy(
-            update={"recommendation": _recommendation_for(analysis)}
-        )
+        analysis_mode = "deterministic"
+        recommendation = _recommendation_for(analysis)
+        if ai_outcome is not None:
+            ai_evidence_id, _ = persist_agent_ai_outcome(
+                session,
+                analysis_run_id=analysis_run_id,
+                agent_run_id=current.run_id,
+                outcome=ai_outcome,
+            )
+            evidence_ids.append(ai_evidence_id)
+            current = current.model_copy(update={"evidence_ids": evidence_ids})
+            recommendation = str(ai_outcome.analysis.recommendation)
+            analysis_mode = str(ai_outcome.mode)
+        current = current.model_copy(update={"recommendation": recommendation})
         current = transition_agent(
             current,
             AgentState.VALIDATING,
@@ -133,6 +147,8 @@ def orchestrate_agent_analysis(
                     "tool_count": len(requests),
                     "evidence_count": len(evidence_ids),
                     "recommendation": current.recommendation,
+                    "analysis_mode": analysis_mode,
+                    "ai_model": (None if ai_outcome is None else ai_outcome.model),
                 },
             )
         )

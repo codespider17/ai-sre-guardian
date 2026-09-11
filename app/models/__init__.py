@@ -5,8 +5,11 @@ from app.models.core import (
     EvidenceItem,
     Service,
 )
+from app.models.knowledge import KnowledgeChunk, KnowledgeDocument
 
 __all__ = [
+    "KnowledgeDocument",
+    "KnowledgeChunk",
     "AnalysisRun",
     "AuditEvent",
     "ChangeEvent",

@@ -48,3 +48,13 @@ uvicorn app.main:app --host 127.0.0.1 --port 8010
 - 工具执行固定使用参数数组且关闭命令Shell，事件最多返回100条、日志最多返回200行、文本输出最多保留65536字符。
 - 完成真实数据库编排闭环：单次Agent运行调用6个工具、保存6条Evidence和7条Audit，输出`manual_review_required`人工复核建议。
 - M3专项与全量回归最终达到61项测试通过，数据库迁移无漂移。
+
+## M4：证据约束AI分析
+
+- 使用PostgreSQL维护6类知识文档和可追溯知识片段。
+- 支持确定性关键词检索、结果评分、来源和版本追踪。
+- 接入DeepSeek OpenAI兼容Chat Completions接口。
+- 使用Pydantic验证结构化JSON，限制风险等级、建议和Evidence引用。
+- Provider异常、无效JSON或不可信Evidence引用自动降级到确定性规则。
+- Agent能够持久化AI分析Evidence，并记录完整Audit审计事件。
+- DeepSeek API Key仅保存在Git忽略且权限为600的本机环境文件中。

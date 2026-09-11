@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,12 @@ class Settings(BaseSettings):
     ingest_token: str
     service_name: str = "ai-sre-guardian"
     version: str = "0.1.0"
+
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-v4-flash"
+    deepseek_api_key: SecretStr | None = None
+    deepseek_timeout_seconds: float = 30.0
+    deepseek_max_retries: int = 2
 
 
 @lru_cache
