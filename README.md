@@ -58,3 +58,13 @@ uvicorn app.main:app --host 127.0.0.1 --port 8010
 - Provider异常、无效JSON或不可信Evidence引用自动降级到确定性规则。
 - Agent能够持久化AI分析Evidence，并记录完整Audit审计事件。
 - DeepSeek API Key仅保存在Git忽略且权限为600的本机环境文件中。
+
+## M5：SLO与错误预算治理
+
+- 计算可用性、错误率、延迟达标率和饱和度达标率4类SLI。
+- 提供99.9%可用性SLO和99.0%延迟达标SLO。
+- 自动计算错误预算、预算消耗率、燃烧率和SLA影响时间。
+- 使用PostgreSQL持久化SLO策略、原始样本和评估结果。
+- 提供受Bearer Token保护的策略创建与样本评估API。
+- 相同Policy和Sample Key幂等返回，冲突定义被拒绝。
+- 真实样例可用性99.87%，燃烧率1.3，SLA影响16.8分钟。

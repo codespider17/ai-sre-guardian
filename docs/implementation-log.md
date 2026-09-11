@@ -57,3 +57,15 @@
 - Agent关联2条Evidence，其中1条为AI结果，并生成3条审计事件。
 - DeepSeek异常自动进入rules_fallback，Agent不具备危险变更工具。
 - 专项测试8项、全量测试80项通过，Alembic无模型漂移。
+
+## M5：SLO、错误预算与SLA影响计算
+
+- 数据库迁移：21b054f993dd。
+- 建立slo_policies和slo_evaluation_records两张可靠性数据表。
+- 四类SLI为可用性99.87%、错误率0.13%、延迟达标率99.2%、饱和度达标率95.0%。
+- 可用性SLO目标99.9%，错误预算消耗130%，燃烧率1.3，SLA影响16.8分钟。
+- 延迟SLO目标99.0%，实际99.2%，错误预算消耗80%，燃烧率0.8，未违反SLO。
+- 真实HTTP Policy为f29a63eb-0def-4e5c-8ccd-42dd78ff3da3。
+- Evaluation为6b66b668-05ea-4ce0-9313-706e2ec0e113，重复请求复用同一记录。
+- Bearer鉴权、404边界、409冲突、数据库唯一约束和OpenAPI路径均已验证。
+- 可靠性API专项测试5项，全量自动化测试98项通过，Alembic无模型漂移。

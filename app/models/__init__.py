@@ -6,8 +6,11 @@ from app.models.core import (
     Service,
 )
 from app.models.knowledge import KnowledgeChunk, KnowledgeDocument
+from app.models.reliability import SLOEvaluationRecord, SLOPolicy
 
 __all__ = [
+    "SLOPolicy",
+    "SLOEvaluationRecord",
     "KnowledgeDocument",
     "KnowledgeChunk",
     "AnalysisRun",
