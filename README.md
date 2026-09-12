@@ -68,3 +68,16 @@ uvicorn app.main:app --host 127.0.0.1 --port 8010
 - 提供受Bearer Token保护的策略创建与样本评估API。
 - 相同Policy和Sample Key幂等返回，冲突定义被拒绝。
 - 真实样例可用性99.87%，燃烧率1.3，SLA影响16.8分钟。
+
+## DevFlow发布观察与人工审批治理
+
+- 通过独立Bearer API幂等接收DevFlow Pipeline Run与Deployment观察事件，
+  不共享DevFlow业务数据库。
+- 组合发布状态、变更风险、SLO违反和错误预算燃烧率，输出
+  `proceed`、`manual_review`或`block`三类确定性建议。
+- 发布建议和人工决定写入PostgreSQL并生成审计事件；`block`建议
+  禁止批准，所有建议均要求人工审批。
+- M6验证5项集成API测试、11项建议测试、8项治理持久化测试和
+  8项治理API测试；全量自动化测试130项通过。
+- 平台只提供发布建议与审批记录，不包含自动部署、回滚或
+  Kubernetes写操作。

@@ -5,10 +5,15 @@ from app.models.core import (
     EvidenceItem,
     Service,
 )
+from app.models.governance import ReleaseApproval, ReleaseRecommendation
+from app.models.integration import ReleaseObservation
 from app.models.knowledge import KnowledgeChunk, KnowledgeDocument
 from app.models.reliability import SLOEvaluationRecord, SLOPolicy
 
 __all__ = [
+    "ReleaseRecommendation",
+    "ReleaseApproval",
+    "ReleaseObservation",
     "SLOPolicy",
     "SLOEvaluationRecord",
     "KnowledgeDocument",
