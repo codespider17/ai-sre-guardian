@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str
     ingest_token: str
+    capacity_lab_token: str
     service_name: str = "ai-sre-guardian"
     version: str = "0.1.0"
 

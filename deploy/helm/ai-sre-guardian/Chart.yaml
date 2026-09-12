@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ai-sre-guardian
+description: Observable AI-SRE capacity laboratory workload
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

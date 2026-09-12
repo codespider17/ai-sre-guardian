@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: ai-sre-guardian
+  tag: ""
+  pullPolicy: IfNotPresent
+
+secretName: ai-sre-capacity-lab-runtime
+
+service:
+  port: 8000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 50
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 5s

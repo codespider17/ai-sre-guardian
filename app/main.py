@@ -4,6 +4,8 @@ from fastapi import Depends, FastAPI
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.api.capacity_lab import metrics_router
+from app.api.capacity_lab import router as capacity_lab_router
 from app.api.changes import router as changes_router
 from app.api.devflow_integration import router as devflow_integration_router
 from app.api.release_governance import router as release_governance_router
@@ -20,6 +22,10 @@ app.include_router(devflow_integration_router)
 
 
 app.include_router(release_governance_router)
+
+
+app.include_router(capacity_lab_router)
+app.include_router(metrics_router)
 
 
 @app.get("/health", tags=["system"])
