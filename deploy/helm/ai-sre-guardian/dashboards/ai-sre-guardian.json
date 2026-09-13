@@ -1,0 +1,155 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "AI-SRE Guardian runtime, capacity and resilience signals.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"mappings": [], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"expr": "max(up{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"})", "legendFormat": "service up", "refId": "A"}],
+      "title": "Service Target Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"decimals": 0, "min": 0}, "overrides": []},
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"expr": "kube_deployment_status_replicas_available{namespace=\"ai-sre-lab\",deployment=\"ai-sre-capacity-lab\"}", "legendFormat": "ready", "refId": "A"}],
+      "title": "Ready Replicas",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"decimals": 0, "min": 0}, "overrides": []},
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 0},
+      "id": 3,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "targets": [
+        {"expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"ai-sre-lab\",horizontalpodautoscaler=\"ai-sre-capacity-lab\"}", "legendFormat": "current", "refId": "A"},
+        {"expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"ai-sre-lab\",horizontalpodautoscaler=\"ai-sre-capacity-lab\"}", "legendFormat": "desired", "refId": "B"}
+      ],
+      "title": "HPA Current and Desired Replicas",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "cores"}, "overrides": []},
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 0},
+      "id": 4,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"ai-sre-lab\",pod=~\"ai-sre-capacity-lab-.+\",container=\"api\"}[5m]))", "legendFormat": "{{pod}}", "refId": "A"}],
+      "title": "Pod CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 8, "x": 0, "y": 4},
+      "id": 5,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"ai-sre-lab\",pod=~\"ai-sre-capacity-lab-.+\",container=\"api\"})", "legendFormat": "{{pod}}", "refId": "A"}],
+      "title": "Pod Memory Working Set",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 8, "x": 8, "y": 4},
+      "id": 6,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (outcome) (rate(ai_sre_capacity_requests_total{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"}[5m]))", "legendFormat": "{{outcome}}", "refId": "A"}],
+      "title": "Capacity Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 7, "w": 8, "x": 16, "y": 4},
+      "id": 7,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(ai_sre_capacity_request_duration_seconds_bucket{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"}[5m])))", "legendFormat": "p95", "refId": "A"}],
+      "title": "Capacity P95 Latency",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"decimals": 0, "min": 0}, "overrides": []},
+      "gridPos": {"h": 6, "w": 4, "x": 0, "y": 11},
+      "id": 8,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"expr": "sum(ai_sre_capacity_active_requests{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"})", "legendFormat": "active", "refId": "A"}],
+      "title": "Active Capacity Requests",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 6, "w": 8, "x": 4, "y": 11},
+      "id": 9,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (strategy, outcome) (rate(ai_sre_resilience_requests_total{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"}[5m]))", "legendFormat": "{{strategy}} / {{outcome}}", "refId": "A"}],
+      "title": "Resilience Request Outcomes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"decimals": 0, "min": 0}, "overrides": []},
+      "gridPos": {"h": 6, "w": 8, "x": 12, "y": 11},
+      "id": 10,
+      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "targets": [{"expr": "sum by (strategy, event) (increase(ai_sre_resilience_control_events_total{namespace=\"ai-sre-lab\",service=\"ai-sre-capacity-lab\"}[$__range]))", "legendFormat": "{{strategy}} / {{event}}", "refId": "A"}],
+      "title": "Resilience Control Events",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"},
+      "fieldConfig": {"defaults": {"decimals": 0, "min": 0}, "overrides": []},
+      "gridPos": {"h": 6, "w": 4, "x": 20, "y": 11},
+      "id": 11,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto", "wideLayout": true},
+      "targets": [{"expr": "sum(kube_pod_container_status_restarts_total{namespace=\"ai-sre-lab\",pod=~\"ai-sre-capacity-lab-.+\",container=\"api\"})", "legendFormat": "restarts", "refId": "A"}],
+      "title": "Current Pod Restarts",
+      "type": "stat"
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "tags": ["ai-sre", "capacity", "resilience"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Prometheus",
+        "multi": false,
+        "name": "DS_PROMETHEUS",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "AI-SRE Guardian Overview",
+  "uid": "ai-sre-guardian-overview",
+  "version": 1,
+  "weekStart": ""
+}

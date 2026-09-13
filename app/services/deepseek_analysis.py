@@ -14,6 +14,13 @@ DEEPSEEK_RESPONSE_FORMAT = {"type": "json_object"}
 MAX_OUTPUT_TOKENS = 1600
 
 
+def evidence_references_are_trusted(
+    allowed_refs: set[str],
+    candidate_refs: list[str],
+) -> bool:
+    return set(candidate_refs).issubset(allowed_refs)
+
+
 class DeepSeekAnalysisError(Exception):
     def __init__(self, code: str) -> None:
         self.code = code
@@ -119,7 +126,10 @@ class DeepSeekAnalysisClient:
             raise DeepSeekAnalysisError("invalid_provider_response") from None
 
         allowed_refs = {evidence.evidence_ref for evidence in analysis_input.evidence}
-        if not set(analysis.evidence_refs).issubset(allowed_refs):
+        if not evidence_references_are_trusted(
+            allowed_refs,
+            analysis.evidence_refs,
+        ):
             raise DeepSeekAnalysisError("untrusted_evidence_reference")
         return analysis
 

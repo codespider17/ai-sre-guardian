@@ -1,0 +1,13 @@
+{{- if .Values.grafanaDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-grafana-dashboard
+  labels:
+    app.kubernetes.io/name: ai-sre-guardian
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{ .Values.grafanaDashboard.sidecarLabel }}: {{ .Values.grafanaDashboard.sidecarLabelValue | quote }}
+data:
+  ai-sre-guardian.json: |-
+{{ .Files.Get "dashboards/ai-sre-guardian.json" | nindent 4 }}
+{{- end }}

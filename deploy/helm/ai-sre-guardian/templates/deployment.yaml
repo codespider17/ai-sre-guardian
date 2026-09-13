@@ -7,6 +7,12 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: ai-sre-guardian
@@ -17,7 +23,9 @@ spec:
         app.kubernetes.io/name: ai-sre-guardian
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      automountServiceAccountToken: false
+      serviceAccountName: {{ include "ai-sre-guardian.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001

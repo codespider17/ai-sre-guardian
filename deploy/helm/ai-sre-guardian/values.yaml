@@ -7,6 +7,30 @@ image:
 
 secretName: ai-sre-capacity-lab-runtime
 
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+
+rbac:
+  create: true
+
+networkPolicy:
+  enabled: true
+  monitoringNamespace: monitoring
+  postgresql:
+    enabled: true
+    cidr: 192.168.87.71/32
+    port: 5432
+  externalHttps:
+    enabled: true
+    cidr: 0.0.0.0/0
+    port: 443
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
 service:
   port: 8000
 
@@ -28,3 +52,9 @@ serviceMonitor:
   enabled: true
   interval: 15s
   scrapeTimeout: 5s
+
+
+grafanaDashboard:
+  enabled: true
+  sidecarLabel: grafana_dashboard
+  sidecarLabelValue: "1"

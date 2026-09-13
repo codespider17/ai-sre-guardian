@@ -1,0 +1,55 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: ai-sre-guardian
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ai-sre-guardian
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.monitoringNamespace }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- if .Values.networkPolicy.postgresql.enabled }}
+    - to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicy.postgresql.cidr }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.postgresql.port }}
+    {{- end }}
+    {{- if .Values.networkPolicy.externalHttps.enabled }}
+    - to:
+        - ipBlock:
+            cidr: {{ .Values.networkPolicy.externalHttps.cidr }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.networkPolicy.externalHttps.port }}
+    {{- end }}
+{{- end }}
