@@ -10,6 +10,7 @@ from app.api.changes import router as changes_router
 from app.api.devflow_integration import router as devflow_integration_router
 from app.api.release_governance import router as release_governance_router
 from app.api.reliability import router as reliability_router
+from app.api.resilience_lab import router as resilience_lab_router
 from app.database import get_db
 from app.settings import get_settings
 
@@ -25,6 +26,7 @@ app.include_router(release_governance_router)
 
 
 app.include_router(capacity_lab_router)
+app.include_router(resilience_lab_router)
 app.include_router(metrics_router)
 
 
